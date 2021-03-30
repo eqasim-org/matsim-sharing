@@ -8,3 +8,7 @@ More documentation is underway, on:
 - How the format of the service definition XML looks like (with stations and vehicles)
 
 For the time being, there are a couple of examples. For instance, `RunCarsharing` sets up a simple (network-based) car-sharing service for standard scenarios such as Sioux Falls. `RunTeleportationBikesharing` is a similar example for a teleportation-based bikesharing service.
+
+Main developers:
+- Milos Balac (ETH Zurich)
+- Sebastian Hörl (IRT SystemX)
