@@ -16,10 +16,10 @@
 
 	<repositories>
 		<repository>
-			<id>matsim</id>
-			<name>MATSim release repository</name>
-			<url>http://dl.bintray.com/matsim/matsim</url>
-		</repository>
+    			<id>matsim</id>
+    			<name>MATSim Maven repository</name>
+    			<url>https://repo.matsim.org/repository/matsim/</url>
+  		</repository>
 		<repository>
 			<id>osgeo</id>
 			<name>Geotools repository</name>
