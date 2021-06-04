@@ -12,3 +12,6 @@ For the time being, there are a couple of examples. For instance, `RunCarsharing
 Main developers:
 - Milos Balac (ETH Zurich)
 - Sebastian Hörl (IRT SystemX)
+
+Main reference:
+- Balac, M. and S. Hörl (2021) [Simulation of intermodal shared mobility in the San Francisco Bay using MATSim](https://www.researchgate.net/publication/351069421_Simulation_of_intermodal_shared_mobility_in_the_San_Francisco_Bay_using_MATSim), Preprint, IVT, ETH Zurich, Zurich.
