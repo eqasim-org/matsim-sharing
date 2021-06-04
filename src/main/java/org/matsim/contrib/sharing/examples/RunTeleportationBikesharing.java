@@ -18,6 +18,13 @@ import org.matsim.core.config.groups.PlanCalcScoreConfigGroup.ModeParams;
 import org.matsim.core.config.groups.PlansCalcRouteConfigGroup.ModeRoutingParams;
 import org.matsim.core.controler.Controler;
 
+/**
+ * 
+ * This is an example of a station-based bike-sharing service
+ * siouxfalls-2014 can be used to run the simulation with the provided example
+ * input file
+ *
+ */
 public class RunTeleportationBikesharing {
 	static public void main(String[] args) throws ConfigurationException {
 		CommandLine cmd = new CommandLine.Builder(args) //
@@ -57,6 +64,7 @@ public class RunTeleportationBikesharing {
 		serviceConfig.setServiceAreaShapeFile(null);
 
 		// ... with a number of available vehicles and their initial locations
+		// the following file is an example and it works with the siouxfalls-2014 scenario
 		serviceConfig.setServiceInputFile("shared_taxi_vehicles_stations.xml");
 
 		// ... and, we need to define the underlying mode, here "bike".

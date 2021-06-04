@@ -18,7 +18,7 @@ public class SharingServiceWriter extends MatsimXmlWriter {
 	public void write(String file) {
 		openFile(file);
 		writeXmlHead();
-		writeDoctype("service", "http://matsim.org/files/dtd/sharing_service_v1.dtd");
+		writeDoctype("service", "src/main/resources/dtd/sharing_service_v1.dtd");
 
 		writeStartTag("service", Collections.emptyList());
 

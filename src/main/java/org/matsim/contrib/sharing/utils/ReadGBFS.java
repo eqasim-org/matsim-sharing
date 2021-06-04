@@ -31,7 +31,13 @@ import org.matsim.core.utils.io.IOUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+/**
+ * 
+ * This class allows to read GBFS and convert it to the input file 
+ * needed by the sharing contrib. Currently this is only applicable
+ * to the station-based services.
+ *
+ */
 public class ReadGBFS {
 	static public void main(String[] args) throws IOException, ConfigurationException {
 		CommandLine cmd = new CommandLine.Builder(args) //
