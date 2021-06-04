@@ -17,7 +17,12 @@ import org.matsim.core.config.groups.PlanCalcScoreConfigGroup.ActivityParams;
 import org.matsim.core.config.groups.PlanCalcScoreConfigGroup.ModeParams;
 import org.matsim.core.config.groups.PlansCalcRouteConfigGroup.ModeRoutingParams;
 import org.matsim.core.controler.Controler;
-
+/**
+ * 
+ * This is an example of a station-based oneway car-sharing service
+ * siouxfalls-2014 can be used to run the simulation with the provided example
+ * input file in the resources/example *
+ */
 public class RunCarsharing {
 	static public void main(String[] args) throws ConfigurationException {
 		CommandLine cmd = new CommandLine.Builder(args) //
@@ -25,20 +30,6 @@ public class RunCarsharing {
 				.build();
 
 		Config config = ConfigUtils.loadConfig(cmd.getOptionStrict("config-path"));
-
-		// We define bike to be routed based on Euclidean distance.
-		ModeRoutingParams bikeRoutingParams = new ModeRoutingParams("bike");
-		bikeRoutingParams.setTeleportedModeSpeed(5.0);
-		bikeRoutingParams.setBeelineDistanceFactor(1.3);
-		config.plansCalcRoute().addModeRoutingParams(bikeRoutingParams);
-
-		// Walk is deleted by adding bike here, we need to re-add it ...
-		ModeRoutingParams walkRoutingParams = new ModeRoutingParams("walk");
-		walkRoutingParams.setTeleportedModeSpeed(2.0);
-		walkRoutingParams.setBeelineDistanceFactor(1.3);
-		config.plansCalcRoute().addModeRoutingParams(walkRoutingParams);
-
-		// By default, "bike" will be simulated using teleportation.
 
 		// We need to add the sharing config group
 		SharingConfigGroup sharingConfig = new SharingConfigGroup();
@@ -49,7 +40,7 @@ public class RunCarsharing {
 		sharingConfig.addService(serviceConfig);
 
 		// ... with a service id. The respective mode will be "sharing:velib".
-		serviceConfig.setId("velib");
+		serviceConfig.setId("mobility");
 
 		// ... with freefloating characteristics
 		serviceConfig.setMaximumAccessEgressDistance(100000);
@@ -81,9 +72,9 @@ public class RunCarsharing {
 		bookingParams.setScoringThisActivityAtAll(false);
 		config.planCalcScore().addActivityParams(bookingParams);
 
-		// We need to score bike
-		ModeParams bikeScoringParams = new ModeParams("bike");
-		config.planCalcScore().addModeParams(bikeScoringParams);
+		// We need to score car
+		ModeParams carScoringParams = new ModeParams("car");
+		config.planCalcScore().addModeParams(carScoringParams);
 
 		// Write out all events (DEBUG)
 		config.controler().setWriteEventsInterval(1);
