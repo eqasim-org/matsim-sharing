@@ -14,6 +14,7 @@ import org.matsim.contrib.sharing.service.SharingVehicle;
 import org.matsim.contrib.sharing.service.events.SharingVehicleEvent;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.mobsim.framework.MobsimAgent;
+import org.matsim.core.mobsim.framework.PlanAgent;
 import org.matsim.core.mobsim.framework.events.MobsimBeforeSimStepEvent;
 import org.matsim.core.mobsim.framework.listeners.MobsimBeforeSimStepListener;
 import org.matsim.core.mobsim.qsim.InternalInterface;
@@ -46,15 +47,28 @@ public class SharingEngine implements ActivityStartEventHandler, MobsimEngine, M
 
 	@Override
 	public void handleEvent(ActivityStartEvent event) {
+		// make sure to handle only those rentals that belong to this SharingService		
+		
 		if (event.getActType().equals(SharingUtils.BOOKING_ACTIVITY)) {
+			
 			MobsimAgent agent = internalInterface.getMobsim().getAgents().get(event.getPersonId());
-			bookingAgents.add(agent);
+
+			Activity activity = (Activity)((PlanAgent)agent).getCurrentPlanElement();
+			if (activity.getAttributes().getAttribute(SharingUtils.SERVICE_ID_ATTRIBUTE) != null &&
+					activity.getAttributes().getAttribute(SharingUtils.SERVICE_ID_ATTRIBUTE).equals(this.service.getId().toString()))
+				bookingAgents.add(agent);
 		} else if (event.getActType().equals(SharingUtils.PICKUP_ACTIVITY)) {
 			MobsimAgent agent = internalInterface.getMobsim().getAgents().get(event.getPersonId());
-			pickupAgents.add(agent);
+			Activity activity = (Activity)((PlanAgent)agent).getCurrentPlanElement();
+			if (activity.getAttributes().getAttribute(SharingUtils.SERVICE_ID_ATTRIBUTE) != null &&
+					activity.getAttributes().getAttribute(SharingUtils.SERVICE_ID_ATTRIBUTE).equals(this.service.getId().toString()))
+				pickupAgents.add(agent);
 		} else if (event.getActType().equals(SharingUtils.DROPOFF_ACTIVITY)) {
 			MobsimAgent agent = internalInterface.getMobsim().getAgents().get(event.getPersonId());
-			dropoffAgents.add(agent);
+			Activity activity = (Activity)((PlanAgent)agent).getCurrentPlanElement();
+			if (activity.getAttributes().getAttribute(SharingUtils.SERVICE_ID_ATTRIBUTE) != null &&
+					activity.getAttributes().getAttribute(SharingUtils.SERVICE_ID_ATTRIBUTE).equals(this.service.getId().toString()))
+				dropoffAgents.add(agent);
 		}
 	}
 
