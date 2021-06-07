@@ -87,6 +87,15 @@ public class SharingLogic {
 			int dropoffActivityIndex = findDropoffActivityIndex(bookingActivityIndex, plan);
 			Activity dropoffActivity = (Activity) plan.getPlanElements().get(dropoffActivityIndex);
 
+			// router ensures that pickup and dropoff locations are different
+			// however we need to ensure this here as well. Otherwise we are
+			// getting 0 seconds travel times, which is problematic
+			// If the pickup location is the same as dropoff location we return false
+			// and consider agent stuck
+			
+			if (dropoffActivity.getLinkId().equals(vehicleLinkId)) 
+				return false;
+			
 			plan.getPlanElements().subList(bookingActivityIndex + 1, dropoffActivityIndex).clear();
 
 			// Create new plan elements
@@ -154,11 +163,21 @@ public class SharingLogic {
 
 				eventsManager.processEvent(new SharingFailedPickupEvent(now, service.getId(), agent.getId(),
 						vehicleLinkId, selectedVehicleInteraction.get().getStationId()));
+				
+				// router ensures that pickup and dropoff locations are different
+				// however we need to ensure this here as well. Otherwise we are
+				// getting 0 seconds travel times, which is problematic
+				// If the pickup location is the same as dropoff location we return false
+				// and consider agent stuck
 
 				// Remove everything until the dropoff activity
 				int dropoffActivityIndex = findDropoffActivityIndex(pickupActivityIndex, plan);
 				Activity dropoffActivity = (Activity) plan.getPlanElements().get(dropoffActivityIndex);
 
+				if (dropoffActivity.getLinkId().equals(vehicleLinkId)) 
+					return false;
+				
+				
 				plan.getPlanElements().subList(pickupActivityIndex + 1, dropoffActivityIndex).clear();
 
 				// Create new plan elements
