@@ -15,6 +15,11 @@ import org.matsim.contrib.sharing.run.SharingModule;
 import org.matsim.contrib.sharing.run.SharingServiceConfigGroup;
 import org.matsim.contrib.sharing.run.SharingServiceConfigGroup.ServiceScheme;
 import org.matsim.contrib.sharing.service.SharingUtils;
+import org.matsim.contrib.sharing.service.events.SharingDropoffEventHandler;
+import org.matsim.contrib.sharing.service.events.SharingFailedDropoffEventHandler;
+import org.matsim.contrib.sharing.service.events.SharingFailedPickupEventHandler;
+import org.matsim.contrib.sharing.service.events.SharingPickupEventHandler;
+import org.matsim.contrib.sharing.service.events.SharingVehicleEventHandler;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.config.CommandLine;
 import org.matsim.core.config.CommandLine.ConfigurationException;
@@ -33,11 +38,10 @@ public class RunIT {
 	@Test
 	public final void test() throws UncheckedIOException, ConfigurationException {
 		URL fixtureUrl = getClass().getClassLoader().getResource("siouxfalls");
-		CommandLine cmd = new CommandLine.Builder(new String[] {
-				"--config-path", fixtureUrl.getFile() + "/config.xml",//
-				"--config:controler.lastIteration", "2"}) //
-				.requireOptions("config-path") //
-				.build();
+		CommandLine cmd = new CommandLine.Builder(new String[] { "--config-path", fixtureUrl.getFile() + "/config.xml", //
+				"--config:controler.lastIteration", "2" }) //
+						.requireOptions("config-path") //
+						.build();
 
 		Config config = ConfigUtils.loadConfig(cmd.getOptionStrict("config-path"));
 		cmd.applyConfiguration(config);
@@ -69,7 +73,7 @@ public class RunIT {
 		List<String> modes = new ArrayList<>(Arrays.asList(config.subtourModeChoice().getModes()));
 		modes.add(SharingUtils.getServiceMode(serviceConfig));
 		config.subtourModeChoice().setModes(modes.toArray(new String[modes.size()]));
-		
+
 		SharingServiceConfigGroup serviceConfigBike = new SharingServiceConfigGroup();
 		sharingConfig.addService(serviceConfigBike);
 
@@ -92,8 +96,7 @@ public class RunIT {
 		modes = new ArrayList<>(Arrays.asList(config.subtourModeChoice().getModes()));
 		modes.add(SharingUtils.getServiceMode(serviceConfigBike));
 		config.subtourModeChoice().setModes(modes.toArray(new String[modes.size()]));
-		
-		
+
 		SharingServiceConfigGroup serviceConfigBikeFF = new SharingServiceConfigGroup();
 		sharingConfig.addService(serviceConfigBikeFF);
 
@@ -116,9 +119,6 @@ public class RunIT {
 		modes = new ArrayList<>(Arrays.asList(config.subtourModeChoice().getModes()));
 		modes.add(SharingUtils.getServiceMode(serviceConfigBikeFF));
 		config.subtourModeChoice().setModes(modes.toArray(new String[modes.size()]));
-		
-		
-		
 
 		// We need to add interaction activity types to scoring
 		ActivityParams pickupParams = new ActivityParams(SharingUtils.PICKUP_ACTIVITY);
@@ -128,7 +128,7 @@ public class RunIT {
 		ActivityParams dropoffParams = new ActivityParams(SharingUtils.DROPOFF_ACTIVITY);
 		dropoffParams.setScoringThisActivityAtAll(false);
 		config.planCalcScore().addActivityParams(dropoffParams);
-		
+
 		ActivityParams bookingParams = new ActivityParams(SharingUtils.BOOKING_ACTIVITY);
 		bookingParams.setScoringThisActivityAtAll(false);
 		config.planCalcScore().addActivityParams(bookingParams);
@@ -136,7 +136,7 @@ public class RunIT {
 		// We need to score car
 		ModeParams carScoringParams = new ModeParams("car");
 		config.planCalcScore().addModeParams(carScoringParams);
-		
+
 		// We need to score bike
 		ModeParams bikeScoringParams = new ModeParams("bike");
 		config.planCalcScore().addModeParams(bikeScoringParams);
@@ -151,30 +151,107 @@ public class RunIT {
 		controller.configureQSimComponents(SharingUtils.configureQSim(sharingConfig));
 
 		controller.run();
-		
-		Map<String, Long> counts = countLegs(controller.getControlerIO().getOutputPath() + "/output_events.xml.gz");
-		Assert.assertEquals(29370, (long) counts.get("car"));
-		Assert.assertEquals(26837, (long) counts.get("walk"));
-		Assert.assertEquals(90, (long) counts.get("bike"));
-		Assert.assertEquals(10150, (long) counts.get("pt"));
-	}
-	
-	static Map<String, Long> countLegs(String eventsPath) {
-		EventsManager manager = EventsUtils.createEventsManager();
 
-		Map<String, Long> counts = new HashMap<>();
+		OutputData data = countLegs(controller.getControlerIO().getOutputPath() + "/output_events.xml.gz");
+
+		Assert.assertEquals(29324, (long) data.counts.get("car"));
+		Assert.assertEquals(26687, (long) data.counts.get("walk"));
+		Assert.assertEquals(88, (long) data.counts.get("bike"));
+		Assert.assertEquals(10582, (long) data.counts.get("pt"));
+
+		Assert.assertEquals(57, (long) data.pickupCounts.get("wheels"));
+		Assert.assertEquals(24, (long) data.pickupCounts.get("mobility"));
+		Assert.assertEquals(31, (long) data.pickupCounts.get("velib"));
+
+		Assert.assertEquals(57, (long) data.dropoffCounts.get("wheels"));
+		Assert.assertEquals(24, (long) data.dropoffCounts.get("mobility"));
+		Assert.assertEquals(31, (long) data.dropoffCounts.get("velib"));
+
+		Assert.assertEquals(2298, (long) data.failedPickupCounts.get("wheels"));
+		Assert.assertEquals(45, (long) data.failedPickupCounts.get("mobility"));
+		Assert.assertEquals(60, (long) data.failedPickupCounts.get("velib"));
+
+		Assert.assertEquals(0, (long) data.failedDropoffCounts.getOrDefault("wheels", 0L));
+		Assert.assertEquals(0, (long) data.failedDropoffCounts.getOrDefault("mobility", 0L));
+		Assert.assertEquals(0, (long) data.failedDropoffCounts.getOrDefault("velib", 0L));
+
+		Assert.assertEquals(2, (long) data.vehicleCounts.get("wheels"));
+		Assert.assertEquals(2, (long) data.vehicleCounts.get("mobility"));
+		Assert.assertEquals(2, (long) data.vehicleCounts.get("velib"));
+	}
+
+	static class OutputData {
+		private final Map<String, Long> counts = new HashMap<>();
+		private final Map<String, Long> pickupCounts = new HashMap<>();
+		private final Map<String, Long> dropoffCounts = new HashMap<>();
+		private final Map<String, Long> failedPickupCounts = new HashMap<>();
+		private final Map<String, Long> failedDropoffCounts = new HashMap<>();
+		private final Map<String, Long> vehicleCounts = new HashMap<>();
+	}
+
+	static OutputData countLegs(String eventsPath) {
+		EventsManager manager = EventsUtils.createEventsManager();
+		OutputData data = new OutputData();
+
 		manager.addHandler((PersonDepartureEventHandler) event -> {
-			counts.compute(event.getLegMode(), (k, v) -> v == null ? 1 : v + 1);
+			data.counts.compute(event.getLegMode(), (k, v) -> v == null ? 1 : v + 1);
 		});
 
-		new MatsimEventsReader(manager).readFile(eventsPath);
+		manager.addHandler((SharingPickupEventHandler) event -> {
+			data.pickupCounts.compute(event.getServiceId().toString(), (k, v) -> v == null ? 1 : v + 1);
+		});
 
-		System.out.println("Counts:");
-		for (Map.Entry<String, Long> entry : counts.entrySet()) {
+		manager.addHandler((SharingDropoffEventHandler) event -> {
+			data.dropoffCounts.compute(event.getServiceId().toString(), (k, v) -> v == null ? 1 : v + 1);
+		});
+
+		manager.addHandler((SharingFailedDropoffEventHandler) event -> {
+			data.failedDropoffCounts.compute(event.getServiceId().toString(), (k, v) -> v == null ? 1 : v + 1);
+		});
+
+		manager.addHandler((SharingFailedPickupEventHandler) event -> {
+			data.failedPickupCounts.compute(event.getServiceId().toString(), (k, v) -> v == null ? 1 : v + 1);
+		});
+
+		manager.addHandler((SharingVehicleEventHandler) event -> {
+			data.vehicleCounts.compute(event.getServiceId().toString(), (k, v) -> v == null ? 1 : v + 1);
+		});
+
+		MatsimEventsReader reader = new MatsimEventsReader(manager);
+		SharingUtils.addEventMappers(reader);
+		reader.readFile(eventsPath);
+
+		System.out.println("Leg counts:");
+		for (Map.Entry<String, Long> entry : data.counts.entrySet()) {
 			System.out.println("  " + entry.getKey() + " " + entry.getValue());
 		}
 
-		return counts;
+		System.out.println("Pickup counts:");
+		for (Map.Entry<String, Long> entry : data.pickupCounts.entrySet()) {
+			System.out.println("  " + entry.getKey() + " " + entry.getValue());
+		}
+
+		System.out.println("Failed pickup counts:");
+		for (Map.Entry<String, Long> entry : data.failedPickupCounts.entrySet()) {
+			System.out.println("  " + entry.getKey() + " " + entry.getValue());
+		}
+
+		System.out.println("Dropoff counts:");
+		for (Map.Entry<String, Long> entry : data.dropoffCounts.entrySet()) {
+			System.out.println("  " + entry.getKey() + " " + entry.getValue());
+		}
+
+		System.out.println("Failed dropoff counts:");
+		for (Map.Entry<String, Long> entry : data.failedDropoffCounts.entrySet()) {
+			System.out.println("  " + entry.getKey() + " " + entry.getValue());
+		}
+
+		System.out.println("Vehicle counts:");
+		for (Map.Entry<String, Long> entry : data.vehicleCounts.entrySet()) {
+			System.out.println("  " + entry.getKey() + " " + entry.getValue());
+		}
+
+		return data;
 	}
 
 }

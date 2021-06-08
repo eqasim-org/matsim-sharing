@@ -60,4 +60,8 @@ public abstract class AbstractSharingEvent extends Event implements HasPersonId,
 	public Id<Person> getPersonId() {
 		return personId;
 	}
+	
+	public Id<SharingService> getServiceId() {
+		return serviceId;
+	}
 }
