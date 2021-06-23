@@ -12,3 +12,4 @@ included in the (note yet determined) next version number.
 - Added integration test based on sioux falls scenario
 - Can simulate different services in the same simulation
 - Update to MATSim 13
+- Added scoring of time and distance fare for both teleported and network modes
