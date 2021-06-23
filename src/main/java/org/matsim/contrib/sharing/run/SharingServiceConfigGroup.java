@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnegative;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
@@ -20,7 +21,8 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 	public static final String SERVICE_AREA_SHAPE_FILE = "serviceAreaShapeFile";
 	public static final String MODE = "mode";
 	public static final String MAXIMUM_ACCESS_EGRESS_DISTANCE = "maximumAccesEgressDistance";
-
+	public static final String TIME_FARE = "timeFare";
+	
 	public static final String SERVICE_INPUT_FILE_EXP = "Input file defining vehicles and stations";
 	public static final String ID_EXP = "The id of the sharing service";
 	public static final String SERVICE_SCHEME_EXP = "One of: " + String.join(", ",
@@ -28,6 +30,7 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 	public static final String SERVICE_AREA_SHAPE_FILE_EXP = "Shape file defining the service area";
 	public static final String MODE_EXP = "Defines the underlying mode of the service";
 	public static final String MAXIMUM_ACCESS_EGRESS_DISTANCE_EXP = "Maximum distance to a bike or station";
+	public static final String TIME_FARE_EXP = "Time [second] fare";
 
 	public enum ServiceScheme {
 		StationBased, Freefloating
@@ -49,6 +52,9 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 
 	@Positive
 	private double maximumAccessEgressDistance = 1000;
+	
+	@Nonnegative
+	private double timeFare = 0.0;
 
 	public SharingServiceConfigGroup() {
 		super(GROUP_NAME);
@@ -113,6 +119,16 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 	public double getMaximumAccessEgressDistance() {
 		return maximumAccessEgressDistance;
 	}
+	
+	@StringSetter(TIME_FARE)
+	public void setTimeFare(double timeFare) {
+		this.timeFare = timeFare;
+	}
+
+	@StringGetter(TIME_FARE)
+	public double getTimeFare() {
+		return timeFare;
+	}
 
 	@Override
 	protected void checkConsistency(Config config) {
@@ -129,6 +145,7 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 		map.put(SERVICE_AREA_SHAPE_FILE, SERVICE_AREA_SHAPE_FILE_EXP);
 		map.put(MODE, MODE_EXP);
 		map.put(MAXIMUM_ACCESS_EGRESS_DISTANCE, MAXIMUM_ACCESS_EGRESS_DISTANCE_EXP);
+		map.put(TIME_FARE, TIME_FARE_EXP);
 		return map;
 	}
 }

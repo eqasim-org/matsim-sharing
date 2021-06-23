@@ -6,6 +6,7 @@ import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.network.Network;
 import org.matsim.contrib.dvrp.run.AbstractDvrpModeModule;
+import org.matsim.contrib.sharing.fare.SharingFareHandler;
 import org.matsim.contrib.sharing.io.DefaultSharingServiceSpecification;
 import org.matsim.contrib.sharing.io.SharingServiceReader;
 import org.matsim.contrib.sharing.io.SharingServiceSpecification;
@@ -18,6 +19,7 @@ import org.matsim.contrib.sharing.routing.SharingRoutingModule;
 import org.matsim.contrib.sharing.routing.StationBasedInteractionFinder;
 import org.matsim.contrib.sharing.service.SharingService;
 import org.matsim.contrib.sharing.service.SharingUtils;
+import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.config.ConfigGroup;
 import org.matsim.core.controler.OutputDirectoryHierarchy;
 import org.matsim.core.router.RoutingModule;
@@ -96,6 +98,11 @@ public class SharingServiceModule extends AbstractDvrpModeModule {
 		}));
 
 		addControlerListenerBinding().to(modalKey(ValidationListener.class));
+		
+		addEventHandlerBinding().toProvider(modalProvider(getter -> {
+			EventsManager eventsManager = getter.get(EventsManager.class);
+			return new SharingFareHandler(eventsManager, serviceConfig);
+		}));
 
 		switch (serviceConfig.getServiceScheme()) {
 		case Freefloating:
