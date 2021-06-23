@@ -6,6 +6,7 @@ import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.network.Network;
 import org.matsim.contrib.dvrp.run.AbstractDvrpModeModule;
+import org.matsim.contrib.sharing.fare.SharingTimeFareHandler;
 import org.matsim.contrib.sharing.io.DefaultSharingServiceSpecification;
 import org.matsim.contrib.sharing.io.SharingServiceReader;
 import org.matsim.contrib.sharing.io.SharingServiceSpecification;
@@ -16,9 +17,14 @@ import org.matsim.contrib.sharing.routing.FreefloatingInteractionFinder;
 import org.matsim.contrib.sharing.routing.InteractionFinder;
 import org.matsim.contrib.sharing.routing.SharingRoutingModule;
 import org.matsim.contrib.sharing.routing.StationBasedInteractionFinder;
+import org.matsim.contrib.sharing.service.SharingNetworkRentalsHandler;
 import org.matsim.contrib.sharing.service.SharingService;
+import org.matsim.contrib.sharing.service.SharingTeleportedRentalsHandler;
 import org.matsim.contrib.sharing.service.SharingUtils;
+import org.matsim.core.api.experimental.events.EventsManager;
+import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigGroup;
+import org.matsim.core.config.groups.QSimConfigGroup;
 import org.matsim.core.controler.OutputDirectoryHierarchy;
 import org.matsim.core.router.RoutingModule;
 
@@ -26,7 +32,6 @@ import com.google.inject.Singleton;
 
 public class SharingServiceModule extends AbstractDvrpModeModule {
 	private final SharingServiceConfigGroup serviceConfig;
-
 	public SharingServiceModule(SharingServiceConfigGroup serviceConfig) {
 		super(SharingUtils.getServiceMode(serviceConfig));
 		this.serviceConfig = serviceConfig;
@@ -96,6 +101,29 @@ public class SharingServiceModule extends AbstractDvrpModeModule {
 		}));
 
 		addControlerListenerBinding().to(modalKey(ValidationListener.class));
+		
+		addEventHandlerBinding().toProvider(modalProvider(getter -> {
+			EventsManager eventsManager = getter.get(EventsManager.class);
+			return new SharingTimeFareHandler(eventsManager, serviceConfig);
+		}));
+		
+		// based on the underlying mode and how it is simulated
+		// teleported/network we need to bind different rental handler
+		
+		if (((QSimConfigGroup) getConfig().getModules().get(QSimConfigGroup.GROUP_NAME)).getMainModes().contains( serviceConfig.getMode())) {
+			addEventHandlerBinding().toProvider(modalProvider(getter -> {
+				EventsManager eventsManager = getter.get(EventsManager.class);
+				Network network = getter.get(Network.class);
+				return new SharingNetworkRentalsHandler(eventsManager, serviceConfig, network);
+			}));
+			
+		}
+		else {
+			addEventHandlerBinding().toProvider(modalProvider(getter -> {
+				EventsManager eventsManager = getter.get(EventsManager.class);
+				return new SharingTeleportedRentalsHandler(eventsManager, serviceConfig);
+			}));
+		}
 
 		switch (serviceConfig.getServiceScheme()) {
 		case Freefloating:
