@@ -13,14 +13,14 @@ import org.matsim.contrib.sharing.service.events.SharingPickupEvent;
 import org.matsim.contrib.sharing.service.events.SharingPickupEventHandler;
 import org.matsim.core.api.experimental.events.EventsManager;
 
-public class SharingFareHandler implements SharingPickupEventHandler, SharingDropoffEventHandler {
+public class SharingTimeFareHandler implements SharingPickupEventHandler, SharingDropoffEventHandler {
 
 	private EventsManager eventsManager;
 	private SharingServiceConfigGroup serviceParams;
-	public static final String PERSON_MONEY_EVENT_PURPOSE_SHARING_FARE = "sharingFare";
-	private final Map<Id<Person>, SharingPickupEvent> pickups = new HashMap<>();
+	public static final String PERSON_MONEY_EVENT_PURPOSE_SHARING_FARE = "sharingFareTime";
+	private Map<Id<Person>, SharingPickupEvent> pickups = new HashMap<>();
 	
-	public SharingFareHandler(EventsManager eventsManager, SharingServiceConfigGroup serviceParams) {
+	public SharingTimeFareHandler(EventsManager eventsManager, SharingServiceConfigGroup serviceParams) {
 		this.eventsManager = eventsManager;
 		this.serviceParams = serviceParams;
 	}
@@ -42,6 +42,11 @@ public class SharingFareHandler implements SharingPickupEventHandler, SharingDro
 			this.pickups.put(event.getPersonId(), event);
 		}
 		
+	}
+	
+	@Override
+	public void reset(int iteration) {
+		pickups.clear();
 	}
 
 }
