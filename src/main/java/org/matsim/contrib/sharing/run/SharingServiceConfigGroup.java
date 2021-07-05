@@ -23,6 +23,7 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 	public static final String MAXIMUM_ACCESS_EGRESS_DISTANCE = "maximumAccesEgressDistance";
 	public static final String TIME_FARE = "timeFare";
 	public static final String DISTANCE_FARE = "distanceFare";
+	public static final String BASE_FARE = "baseFare";
 	
 	public static final String SERVICE_INPUT_FILE_EXP = "Input file defining vehicles and stations";
 	public static final String ID_EXP = "The id of the sharing service";
@@ -33,6 +34,7 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 	public static final String MAXIMUM_ACCESS_EGRESS_DISTANCE_EXP = "Maximum distance to a bike or station";
 	public static final String TIME_FARE_EXP = "Time [second] fare";
 	public static final String DISTANCE_FARE_EXP = "Distance [meter] fare";
+	public static final String BASE_FARE_EXP = "Base fare";
 
 	public enum ServiceScheme {
 		StationBased, Freefloating
@@ -60,6 +62,9 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 	
 	@Nonnegative
 	private double distanceFare = 0.0;
+	
+	@Nonnegative
+	private double baseFare = 0.0;
 
 	public SharingServiceConfigGroup() {
 		super(GROUP_NAME);
@@ -144,6 +149,16 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 	public double getDistanceFare() {
 		return distanceFare;
 	}
+	
+	@StringSetter(BASE_FARE)
+	public void setBaseFare(double baseFare) {
+		this.baseFare = baseFare;
+	}
+
+	@StringGetter(BASE_FARE)
+	public double getBaseFare() {
+		return baseFare;
+	}
 
 	@Override
 	protected void checkConsistency(Config config) {
@@ -162,6 +177,8 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 		map.put(MAXIMUM_ACCESS_EGRESS_DISTANCE, MAXIMUM_ACCESS_EGRESS_DISTANCE_EXP);
 		map.put(TIME_FARE, TIME_FARE_EXP);
 		map.put(DISTANCE_FARE, DISTANCE_FARE_EXP);
+		map.put(BASE_FARE, BASE_FARE_EXP);
 		return map;
 	}
+	
 }

@@ -24,6 +24,7 @@ public class SharingTeleportedRentalsHandler implements SharingPickupEventHandle
 	private Map<Id<Person>, Double> distance = new HashMap<>();
 	
 	public static final String PERSON_MONEY_EVENT_PURPOSE_SHARING_FARE = "sharingFareDistance";
+	public static final String PERSON_MONEY_EVENT_PURPOSE_SHARING_BASE_FARE = "sharingBaseFare";
 
 	
 	public SharingTeleportedRentalsHandler(EventsManager eventsManager, SharingServiceConfigGroup serviceParams) {
@@ -59,7 +60,9 @@ public class SharingTeleportedRentalsHandler implements SharingPickupEventHandle
 		if (event.getServiceId().toString().equals(serviceParams.getId())) {
 			Verify.verify(this.distance.containsKey(event.getPersonId()));
 			double sharedFare = this.distance.get(event.getPersonId()) * this.serviceParams.getDistanceFare();
+			double sharedBaseFare = this.serviceParams.getBaseFare();
 			eventsManager.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), sharedFare,  PERSON_MONEY_EVENT_PURPOSE_SHARING_FARE, event.getServiceId().toString()));
+			eventsManager.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), sharedBaseFare,  PERSON_MONEY_EVENT_PURPOSE_SHARING_BASE_FARE, event.getServiceId().toString()));
 			this.distance.remove(event.getPersonId());
 			this.pickups.remove(event.getPersonId());
 		}
