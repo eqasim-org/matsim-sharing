@@ -63,6 +63,7 @@ public class SharingNetworkRentalsHandler implements SharingPickupEventHandler, 
 			double sharedFare = this.distance.get(event.getPersonId()) * this.serviceParams.getDistanceFare();
 			eventsManager.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), sharedFare,  PERSON_MONEY_EVENT_PURPOSE_SHARING_FARE, event.getServiceId().toString()));
 			this.distance.remove(event.getPersonId());
+			this.pickups.remove(event.getPersonId());
 		}
 	}
 
@@ -71,7 +72,7 @@ public class SharingNetworkRentalsHandler implements SharingPickupEventHandler, 
 		Id<Person> personId = this.personToVehicle.get(event.getVehicleId());
 		if (pickups.containsKey(personId)) {
 			Link link = this.network.getLinks().get(event.getLinkId());
-			distance.compute(personId, (k,v) -> v == null ? 0.0 : v + link.getLength());
+			distance.compute(personId, (k,v) -> v == null ? link.getLength() : v + link.getLength());
 		}
 	}
 
