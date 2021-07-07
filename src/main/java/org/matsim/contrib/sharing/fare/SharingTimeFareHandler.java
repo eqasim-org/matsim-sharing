@@ -32,7 +32,7 @@ public class SharingTimeFareHandler implements SharingPickupEventHandler, Sharin
 			double pickuptime = this.pickups.get(event.getPersonId()).getTime();			
 			double rentalTime = event.getTime() - pickuptime;
 			double sharedFare = rentalTime * serviceParams.getTimeFare();
-			eventsManager.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), sharedFare,  PERSON_MONEY_EVENT_PURPOSE_SHARING_FARE, event.getServiceId().toString()));
+			eventsManager.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -sharedFare,  PERSON_MONEY_EVENT_PURPOSE_SHARING_FARE, event.getServiceId().toString()));
 		}
 	}
 
