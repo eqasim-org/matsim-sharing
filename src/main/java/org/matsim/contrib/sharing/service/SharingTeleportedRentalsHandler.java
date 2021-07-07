@@ -17,16 +17,15 @@ import org.matsim.core.api.experimental.events.handler.TeleportationArrivalEvent
 
 import com.google.common.base.Verify;
 
-public class SharingTeleportedRentalsHandler implements SharingPickupEventHandler, SharingDropoffEventHandler, TeleportationArrivalEventHandler {
+public class SharingTeleportedRentalsHandler
+		implements SharingPickupEventHandler, SharingDropoffEventHandler, TeleportationArrivalEventHandler {
 	private EventsManager eventsManager;
 	private SharingServiceConfigGroup serviceParams;
 	private Map<Id<Person>, SharingPickupEvent> pickups = new HashMap<>();
 	private Map<Id<Person>, Double> distance = new HashMap<>();
-	
-	public static final String PERSON_MONEY_EVENT_PURPOSE_SHARING_FARE = "sharingFareDistance";
-	public static final String PERSON_MONEY_EVENT_PURPOSE_SHARING_BASE_FARE = "sharingBaseFare";
 
-	
+	public static final String PERSON_MONEY_EVENT_PURPOSE_SHARING_FARE = "sharingFare";
+
 	public SharingTeleportedRentalsHandler(EventsManager eventsManager, SharingServiceConfigGroup serviceParams) {
 		this.eventsManager = eventsManager;
 		this.serviceParams = serviceParams;
@@ -43,15 +42,9 @@ public class SharingTeleportedRentalsHandler implements SharingPickupEventHandle
 	@Override
 	public void handleEvent(TeleportationArrivalEvent event) {
 		if (pickups.containsKey(event.getPersonId())) {
-			distance.compute(event.getPersonId(), (k,v) -> v == null ? event.getDistance() : v + event.getDistance());
+			distance.compute(event.getPersonId(), (k, v) -> v == null ? event.getDistance() : v + event.getDistance());
 		}
-		
-	}
-	
-	@Override
-	public void reset(int iteration) {
-		pickups.clear();
-		distance.clear();		
+
 	}
 
 	@Override
@@ -59,13 +52,33 @@ public class SharingTeleportedRentalsHandler implements SharingPickupEventHandle
 
 		if (event.getServiceId().toString().equals(serviceParams.getId())) {
 			Verify.verify(this.distance.containsKey(event.getPersonId()));
-			double sharedFare = this.distance.get(event.getPersonId()) * this.serviceParams.getDistanceFare();
+			// distance fare
+			double sharedDistanceFare = this.distance.get(event.getPersonId()) * this.serviceParams.getDistanceFare();
+
+			// base fare
 			double sharedBaseFare = this.serviceParams.getBaseFare();
-			eventsManager.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -sharedFare,  PERSON_MONEY_EVENT_PURPOSE_SHARING_FARE, event.getServiceId().toString()));
-			eventsManager.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -sharedBaseFare,  PERSON_MONEY_EVENT_PURPOSE_SHARING_BASE_FARE, event.getServiceId().toString()));
+
+			// time fare
+			double pickuptime = this.pickups.get(event.getPersonId()).getTime();
+			double rentalTime = event.getTime() - pickuptime;
+			double sharedTimeFare = rentalTime * serviceParams.getTimeFare();
+
+			// minimum fare
+			double minimumFare = serviceParams.getMinimumFare();
+
+			double sharedFare = Math.max(minimumFare, sharedBaseFare + sharedDistanceFare + sharedTimeFare);
+			eventsManager.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -sharedFare,
+					PERSON_MONEY_EVENT_PURPOSE_SHARING_FARE, event.getServiceId().toString()));
+
 			this.distance.remove(event.getPersonId());
 			this.pickups.remove(event.getPersonId());
 		}
+	}
+
+	@Override
+	public void reset(int iteration) {
+		pickups.clear();
+		distance.clear();
 	}
 
 }

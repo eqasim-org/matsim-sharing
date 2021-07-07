@@ -101,12 +101,7 @@ public class SharingServiceModule extends AbstractDvrpModeModule {
 		}));
 
 		addControlerListenerBinding().to(modalKey(ValidationListener.class));
-		
-		addEventHandlerBinding().toProvider(modalProvider(getter -> {
-			EventsManager eventsManager = getter.get(EventsManager.class);
-			return new SharingTimeFareHandler(eventsManager, serviceConfig);
-		}));
-		
+						
 		// based on the underlying mode and how it is simulated
 		// teleported/network we need to bind different rental handler
 		

@@ -24,6 +24,7 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 	public static final String TIME_FARE = "timeFare";
 	public static final String DISTANCE_FARE = "distanceFare";
 	public static final String BASE_FARE = "baseFare";
+	public static final String MINIMUM_FARE = "minimumFare";
 	
 	public static final String SERVICE_INPUT_FILE_EXP = "Input file defining vehicles and stations";
 	public static final String ID_EXP = "The id of the sharing service";
@@ -35,6 +36,7 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 	public static final String TIME_FARE_EXP = "Time [second] fare";
 	public static final String DISTANCE_FARE_EXP = "Distance [meter] fare";
 	public static final String BASE_FARE_EXP = "Base fare";
+	public static final String MINIMUM_FARE_EXP = "Minimum fare per rental";
 
 	public enum ServiceScheme {
 		StationBased, Freefloating
@@ -65,6 +67,9 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 	
 	@Nonnegative
 	private double baseFare = 0.0;
+	
+	@Nonnegative
+	private double minimumFare = 0.0;
 
 	public SharingServiceConfigGroup() {
 		super(GROUP_NAME);
@@ -159,6 +164,16 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 	public double getBaseFare() {
 		return baseFare;
 	}
+	
+	@StringSetter(MINIMUM_FARE)
+	public void setMinimumFare(double minimumFare) {
+		this.minimumFare = minimumFare;
+	}
+
+	@StringGetter(MINIMUM_FARE)
+	public double getMinimumFare() {
+		return minimumFare;
+	}
 
 	@Override
 	protected void checkConsistency(Config config) {
@@ -178,6 +193,7 @@ public class SharingServiceConfigGroup extends ReflectiveConfigGroup {
 		map.put(TIME_FARE, TIME_FARE_EXP);
 		map.put(DISTANCE_FARE, DISTANCE_FARE_EXP);
 		map.put(BASE_FARE, BASE_FARE_EXP);
+		map.put(MINIMUM_FARE, MINIMUM_FARE_EXP);
 		return map;
 	}
 	
