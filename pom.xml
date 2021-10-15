@@ -16,7 +16,7 @@
 
 	<distributionManagement>
 		<repository>
-			<id>packagecloud-uam</id>
+			<id>packagecloud-sharing</id>
 			<url>packagecloud+https://packagecloud.io/eth-ivt/sharing</url>
 		</repository>
 	</distributionManagement>
