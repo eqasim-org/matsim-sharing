@@ -5,6 +5,9 @@ This change log is written in descending order. Changes that happen after versio
 included in the (note yet determined) next version number.
 
 **Development version**
+- No changes yet
+
+**Version 1.0.0**
 
 - Initial version
 - Can simulate free-floating and one-way station-based shared services
