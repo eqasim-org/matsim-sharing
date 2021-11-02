@@ -15,3 +15,30 @@ Main developers:
 
 Main reference:
 - Balac, M. and S. Hörl (2021) [Simulation of intermodal shared mobility in the San Francisco Bay using MATSim](https://www.researchgate.net/publication/351069421_Simulation_of_intermodal_shared_mobility_in_the_San_Francisco_Bay_using_MATSim), to be presented at the 2021 Intelligent Transportation Systems Conference (ITSC).
+
+## Versioning and Packging
+
+
+The current version of `matsim-sharing` is `1.0.0` and is based on MATSim `13.0`. You can access it through the `v1.0.0` tag. The
+`master` branch is kept at version `1.0.0` until the next release is prepared,
+but may include additional developments since the last release.
+
+The code is available as a Maven package. To use it, add the following repository
+to your `pom.xml`:
+
+```xml
+<repository>
+    <id>eth-ivt-sharing</id>
+    <url>https://packagecloud.io/eth-ivt/sharing/maven2</url>
+</repository>
+```
+
+Afterwards, you can add the following dependency to your project:
+
+```xml
+<dependency>
+  <groupId>org.matsim.contrib</groupId>
+  <artifactId>sharing</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
