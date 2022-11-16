@@ -20,7 +20,7 @@ Main reference:
 
 
 The current version of `matsim-sharing` is `1.0.1` and is based on MATSim `13.0`. You can access it through the `v1.0.1` tag. The
-`master` branch is kept at version `1.0.0` until the next release is prepared,
+`master` branch is kept at version `1.0.1` until the next release is prepared,
 but may include additional developments since the last release.
 
 The code is available as a Maven package. To use it, add the following repository
