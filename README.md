@@ -19,7 +19,7 @@ Main reference:
 ## Versioning and Packging
 
 
-The current version of `matsim-sharing` is `1.0.0` and is based on MATSim `13.0`. You can access it through the `v1.0.0` tag. The
+The current version of `matsim-sharing` is `1.0.1` and is based on MATSim `13.0`. You can access it through the `v1.0.1` tag. The
 `master` branch is kept at version `1.0.0` until the next release is prepared,
 but may include additional developments since the last release.
 
@@ -39,6 +39,6 @@ Afterwards, you can add the following dependency to your project:
 <dependency>
   <groupId>org.matsim.contrib</groupId>
   <artifactId>sharing</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
