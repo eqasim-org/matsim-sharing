@@ -5,7 +5,11 @@ This change log is written in descending order. Changes that happen after versio
 included in the (note yet determined) next version number.
 
 **Development version**
+
 - No changes yet
+
+**Version 1.0.1**
+- Fix the issue where vehicles are returned to the pickup instead of the drop-off station for station absed service
 
 **Version 1.0.0**
 
