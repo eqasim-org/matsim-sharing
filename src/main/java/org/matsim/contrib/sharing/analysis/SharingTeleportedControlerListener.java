@@ -19,12 +19,14 @@ public class SharingTeleportedControlerListener implements StartupListener, Iter
 
 	private final SharingTeleportedRentalsHandler sharingHandler;
 	private final EventsManager eventsManager;
+	private String serviceid;
 
 	@Inject
 	public SharingTeleportedControlerListener(SharingTeleportedRentalsHandler sharingHandler,
-			EventsManager eventsManager) {
+			EventsManager eventsManager, String serviceid) {
 		this.sharingHandler = sharingHandler;
 		this.eventsManager = eventsManager;
+		this.serviceid = serviceid;
 
 	}
 
@@ -40,7 +42,7 @@ public class SharingTeleportedControlerListener implements StartupListener, Iter
 		if (event.getIteration() > 0) {
 			// write all data gathered in csv files
 			String path = event.getServices().getControlerIO().getIterationPath(event.getIteration())
-					+ "/sharingrentals.csv";
+					+ "/sharingrentals_" + serviceid + ".csv";
 
 			Set<RentalInfo> rentals = this.sharingHandler.getRentals();
 			try {

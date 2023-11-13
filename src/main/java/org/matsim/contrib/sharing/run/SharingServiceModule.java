@@ -124,7 +124,7 @@ public class SharingServiceModule extends AbstractDvrpModeModule {
 			addControlerListenerBinding().toProvider(modalProvider(getter -> {
 				EventsManager eventsManager = getter.get(EventsManager.class);
 				SharingTeleportedRentalsHandler sharingHandler = getter.getModal(SharingTeleportedRentalsHandler.class);
-				return new SharingTeleportedControlerListener(sharingHandler, eventsManager);
+				return new SharingTeleportedControlerListener(sharingHandler, eventsManager, SharingUtils.getServiceMode(serviceConfig));
 			}));
 		}
 
