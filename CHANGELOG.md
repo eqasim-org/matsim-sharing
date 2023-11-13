@@ -8,6 +8,10 @@ included in the (note yet determined) next version number.
 
 - No changes yet
 
+**Version 1.0.2**
+
+- Added output that contains all rentals
+
 **Version 1.0.1**
 
 - Fix the issue where vehicles are returned to the pickup instead of the drop-off station for station absed service
