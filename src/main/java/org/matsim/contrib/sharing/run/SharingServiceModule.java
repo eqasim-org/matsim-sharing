@@ -6,6 +6,7 @@ import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.network.Network;
 import org.matsim.contrib.dvrp.run.AbstractDvrpModeModule;
+import org.matsim.contrib.sharing.analysis.SharingTeleportedControlerListener;
 import org.matsim.contrib.sharing.io.DefaultSharingServiceSpecification;
 import org.matsim.contrib.sharing.io.SharingServiceReader;
 import org.matsim.contrib.sharing.io.SharingServiceSpecification;
@@ -27,6 +28,7 @@ import org.matsim.core.controler.OutputDirectoryHierarchy;
 import org.matsim.core.router.RoutingModule;
 
 import com.google.inject.Singleton;
+
 
 public class SharingServiceModule extends AbstractDvrpModeModule {
 	private final SharingServiceConfigGroup serviceConfig;
@@ -112,9 +114,17 @@ public class SharingServiceModule extends AbstractDvrpModeModule {
 			
 		}
 		else {
-			addEventHandlerBinding().toProvider(modalProvider(getter -> {
+			bindModal(SharingTeleportedRentalsHandler.class).toProvider(modalProvider(getter -> {
 				EventsManager eventsManager = getter.get(EventsManager.class);
 				return new SharingTeleportedRentalsHandler(eventsManager, serviceConfig);
+			})).in(Singleton.class);
+			
+			// addEventHandlerBinding().to(modalKey(SharingTeleportedRentalsHandler.class));
+			
+			addControlerListenerBinding().toProvider(modalProvider(getter -> {
+				EventsManager eventsManager = getter.get(EventsManager.class);
+				SharingTeleportedRentalsHandler sharingHandler = getter.getModal(SharingTeleportedRentalsHandler.class);
+				return new SharingTeleportedControlerListener(sharingHandler, eventsManager, SharingUtils.getServiceMode(serviceConfig));
 			}));
 		}
 

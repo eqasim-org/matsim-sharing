@@ -1,7 +1,9 @@
 package org.matsim.contrib.sharing.service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.events.PersonMoneyEvent;
@@ -23,6 +25,7 @@ public class SharingTeleportedRentalsHandler
 	private SharingServiceConfigGroup serviceParams;
 	private Map<Id<Person>, SharingPickupEvent> pickups = new HashMap<>();
 	private Map<Id<Person>, Double> distance = new HashMap<>();
+	private Set<RentalInfo> rentals = new HashSet<>();
 
 	public static final String PERSON_MONEY_EVENT_PURPOSE_SHARING_FARE = "sharingFare";
 
@@ -70,15 +73,29 @@ public class SharingTeleportedRentalsHandler
 			eventsManager.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -sharedFare,
 					PERSON_MONEY_EVENT_PURPOSE_SHARING_FARE, event.getServiceId().toString()));
 
-			this.distance.remove(event.getPersonId());
+			SharingPickupEvent pickupEvent = this.pickups.get(event.getPersonId());
+
+			RentalInfo rentalInfo = new RentalInfo(pickupEvent.getTime(), event.getTime(), event.getServiceId(),
+					event.getPersonId(), pickupEvent.getLinkId(), event.getLinkId(),
+					pickupEvent.getAttributes().get("vehicle"), pickupEvent.getAttributes().get("station"),
+					event.getAttributes().get("station"), this.distance.get(event.getPersonId()));
+			this.rentals.add(rentalInfo);
+
 			this.pickups.remove(event.getPersonId());
+			this.distance.remove(event.getPersonId());
+
 		}
+	}
+	
+	public Set<RentalInfo> getRentals() {
+		return this.rentals;
 	}
 
 	@Override
 	public void reset(int iteration) {
 		pickups.clear();
 		distance.clear();
+		rentals.clear();
 	}
 
 }
